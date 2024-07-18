@@ -22,6 +22,7 @@ public class SensorData {
   private double humidity;
   private double windSpeed;
 
+
   protected SensorData() {
   }
 
