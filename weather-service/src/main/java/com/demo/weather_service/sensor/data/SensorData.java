@@ -10,19 +10,17 @@ import java.time.LocalDateTime;
 @Entity
 public class SensorData {
 
-
   @Id
   @GeneratedValue
   private Long id;
 
-  @NotBlank(message = "SensorId required is mandatory")
+  @NotBlank(message = "SensorId is required")
   private String sensorId;
-  @NotNull(message = "SensorId required is mandatory")
+  @NotNull(message = "Date is required")
   private LocalDateTime timestamp;
   private double temperature;
   private double humidity;
   private double windSpeed;
-
 
   protected SensorData() {
   }
