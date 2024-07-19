@@ -1,7 +1,7 @@
-package com.demo.weather_service.sensor.controller;
+package com.demo.weather_service.controllers.sensor;
 
-import com.demo.weather_service.sensor.data.SensorData;
-import com.demo.weather_service.sensor.repository.SensorDataRepository;
+import com.demo.weather_service.data.SensorData;
+import com.demo.weather_service.repository.SensorDataRepository;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
