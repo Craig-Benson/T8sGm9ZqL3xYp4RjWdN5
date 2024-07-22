@@ -21,7 +21,7 @@ public class ResponseService {
   public ResponseEntity<Map<String, SensorData>> createMultipleSensorDataResponse(
       Map<String, SensorData> sensorDataMap) {
 
-    int valid = 0;
+     int valid = 0;
     int invalid = 0;
 
     for (Map.Entry<String, SensorData> entry : sensorDataMap.entrySet()) {
