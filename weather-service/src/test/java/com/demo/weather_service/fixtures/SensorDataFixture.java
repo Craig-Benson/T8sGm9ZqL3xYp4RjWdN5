@@ -2,6 +2,8 @@ package com.demo.weather_service.fixtures;
 
 import com.demo.weather_service.data.SensorData;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SensorDataFixture {
 
@@ -30,8 +32,20 @@ public class SensorDataFixture {
         .build();
   }
 
+  public static SensorData getSensorData() {
+    return SensorData.builder()
+        .sensorId(SENSOR_ID)
+        .date(DATE)
+        .temperature(TEMPERATURE)
+        .humidity(HUMIDITY)
+        .windSpeed(WIND_SPEED)
+        .build();
+  }
 
-  public static SensorData getSensorDataForDb(long id, String sensorId, LocalDate date, double temperature, double humidity, double windSpeed) {
+
+  public static SensorData getSensorDataForDb(long id, String sensorId, LocalDate date,
+                                              double temperature, double humidity,
+                                              double windSpeed) {
 
     return SensorData.builder()
         .id(id)
@@ -74,4 +88,15 @@ public class SensorDataFixture {
 
   }
 
+  public static Map<String, SensorData> getSensorDataMap() {
+    return Map.of("sensor-1", SensorDataFixture.getSensorData(),
+        "sensor-2", SensorDataFixture.getSensorData());
+  }
+
+  public static Map<String, SensorData> getValidAndInvalidSensorDataMap() {
+    Map<String, SensorData> sensorDataMap = new HashMap<>();
+    sensorDataMap.put("sensor-1", SensorDataFixture.getSensorData());
+    sensorDataMap.put("invalid", null);
+    return sensorDataMap;
+  }
 }
