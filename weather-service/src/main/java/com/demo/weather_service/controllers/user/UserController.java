@@ -1,75 +1,61 @@
 package com.demo.weather_service.controllers.user;
 
 import com.demo.weather_service.data.SensorData;
-import com.demo.weather_service.repository.SensorDataRepository;
+import com.demo.weather_service.service.ResponseService;
 import com.demo.weather_service.service.SensorDataService;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-//TODO: rename?
 public class UserController {
 
-  private Logger logger = LoggerFactory.getLogger(UserController.class);
-
-  private final SensorDataRepository repository;
-
   private final SensorDataService sensorDataService;
+  private final ResponseService responseService;
 
-  public UserController(SensorDataRepository repository, SensorDataService sensorDataService) {
-    this.repository = repository;
+  public UserController(SensorDataService sensorDataService, ResponseService responseService) {
     this.sensorDataService = sensorDataService;
+    this.responseService = responseService;
   }
 
   @GetMapping("/weather-service")
-  public SensorData getLatestState() {
-    return repository.findTopByOrderByDateDesc();
+  public ResponseEntity<SensorData> getLatestState() {
+    return responseService.createLatestStateResponse(sensorDataService.getLatestState());
   }
 
-  // should i keep this?
-//  @GetMapping("/weather-metrics/{sensorId}")
-//  public SensorData getLatestStateForSensorId(@PathVariable String sensorId) {
-//    return repository.findFirstBySensorIdOrderByDateDesc(sensorId);
-//  }
-
   @GetMapping("/weather-service/{sensorIds}")
-  public List<SensorData> getLatestStateForSensorIds(@PathVariable List<String> sensorIds) {
+  public ResponseEntity<Map<String, SensorData>> getLatestStateForSensorIds(
+      @PathVariable List<String> sensorIds) {
 
-    List<SensorData> sensorDataList = new ArrayList<>();
-    for (String sensorId : sensorIds) {
-      sensorDataList.add(repository.findFirstBySensorIdOrderByDateDesc(sensorId));
-    }
-
-    return sensorDataList;
+    return responseService.createMultipleSensorDataResponse(
+        sensorDataService.getLatestStateForSensorIds(sensorIds));
   }
 
 
   @GetMapping("/weather-service/{sensorIds}/{metrics}/{statistic}")
-  public Map<String, Map<String, Double>> getMetricsStatistics(@PathVariable List<String> sensorIds,
-                                                               @PathVariable List<String> metrics,
-                                                               @PathVariable String statistic,
-                                                               @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                                                 LocalDate from,
-                                                               @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                                               LocalDate to) {
-
-
-
-    return sensorDataService.getMetricsStatisticsForSensors(sensorIds, statistic, metrics, from,
-        to);
+  public ResponseEntity<Map<String, Map<String, Double>>> getMetricsStatistics(
+      @PathVariable List<String> sensorIds,
+      @PathVariable List<String> metrics,
+      @PathVariable String statistic,
+      @RequestParam(value = "from", required = false)
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      LocalDate from,
+      @RequestParam(value = "to", required = false)
+      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+      LocalDate to) {
+    return responseService.createStatisticsResponse(
+        sensorDataService.getMetricsStatisticsForSensors(sensorIds, statistic, metrics, from,
+            to));
   }
 
   @GetMapping("/weather-service/all-sensors/{metrics}/{statistic}")
-  public Map<String, Map<String, Double>> getAllSensorIdMetricsStatistics(
+  public ResponseEntity<Map<String, Map<String, Double>>> getAllSensorIdMetricsStatistics(
       @PathVariable List<String> metrics,
       @PathVariable String statistic,
       @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -77,43 +63,10 @@ public class UserController {
       @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       LocalDate to) {
 
-
-    return sensorDataService.getMetricsStatisticsForAllSensors(metrics, statistic, from,
-        to);
+    return responseService.createStatisticsResponse(
+        sensorDataService.getMetricsStatisticsForAllSensors(metrics, statistic, from,
+            to));
   }
 
-  @GetMapping("/weather-service/{sensorId}/{metric}/sum/{from}/{to}")
-  public double getSumMetric(@PathVariable String sensorId,
-                             @PathVariable String metric,
-                             @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                               LocalDate from,
-                             @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                               LocalDate to) {
-
-    return sensorDataService.getMetricSumForSensor(sensorId, metric, from, to);
-  }
-
-
-  @GetMapping("/weather-service/{sensorId}/{metric}/min/{from}/{to}")
-  public double getMinMetric(@PathVariable String sensorId,
-                             @PathVariable String metric,
-                             @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                               LocalDate from,
-                             @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                               LocalDate to) {
-
-    return sensorDataService.getMetricMinForSensor(sensorId, metric, from, to);
-  }
-
-  @GetMapping("/weather-service/{sensorId}/{metric}/max/{from}/{to}")
-  public double getMaxMetric(@PathVariable String sensorId,
-                             @PathVariable String metric,
-                             @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                               LocalDate from,
-                             @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                               LocalDate to) {
-
-    return sensorDataService.getMetricMaxForSensor(sensorId, metric, from, to);
-  }
 
 }
