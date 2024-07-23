@@ -26,9 +26,9 @@ class ResponseServiceTest {
   @Test
   void ShouldReturnOkResponseWhenSensorDataIsValid() {
 
-    ResponseEntity<SensorDataResponse> expected = ResponseEntity.ok().body(new SensorDataResponse(SensorDataFixture.getSensorData()));
+    ResponseEntity<SensorDataResponse> expected = ResponseEntity.ok().body(new SensorDataResponse(SensorDataFixture.getSensorDataOne()));
     assertEquals(expected,
-        responseService.createLatestStateResponse(SensorDataFixture.getSensorData()));
+        responseService.createLatestStateResponse(SensorDataFixture.getSensorDataOne()));
   }
 
   @Test
