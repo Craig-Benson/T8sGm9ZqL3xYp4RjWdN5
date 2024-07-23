@@ -6,9 +6,7 @@ import com.demo.weather_service.service.mapper.StatisticsMapper;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import org.springframework.stereotype.Service;
 
@@ -57,10 +55,10 @@ public class SensorDataService {
             getSensorDataBetweenDates(sensorIds, from, to);
 
     statistics.put("overall",
-        processOverallStatistics(statistic, sensorDataBySensorId.entrySet(), metrics));
+        statisticsMapper.mapOverallStatistics(statistic, sensorDataBySensorId.entrySet(), metrics));
 
     sensorDataBySensorId.forEach((key, value) ->
-        statistics.put(key, processStatistics(statistic, value, metrics)));
+        statistics.put(key, statisticsMapper.mapStatistics(statistic, value, metrics)));
 
 
     return statistics;
@@ -93,10 +91,6 @@ public class SensorDataService {
     return mappedSensorData;
   }
 
-  private boolean noDatesPresent(LocalDate from, LocalDate to) {
-    return from == null && to == null;
-  }
-
   public Map<String, Map<String, Double>> getMetricsStatisticsForAllSensors(List<String> metrics,
                                                                             String statistic,
                                                                             LocalDate from,
@@ -105,44 +99,9 @@ public class SensorDataService {
         to);
   }
 
-  private Map<String, Double> processStatistics(String statistic,
-                                                List<SensorData> sensorData,
-                                                List<String> metricsToProcess) {
-
-    Map<String, Double> metricsMap;
-
-    switch (statistic.toLowerCase(Locale.ROOT)) {
-      case "average" ->
-          metricsMap = statisticsMapper.mapAverageStatistic(sensorData, metricsToProcess);
-      case "sum" -> metricsMap = statisticsMapper.mapSumStatistic(sensorData, metricsToProcess);
-      case "max" -> metricsMap = statisticsMapper.mapMaxStatistic(sensorData, metricsToProcess);
-      case "min" -> metricsMap = statisticsMapper.mapMinStatistic(sensorData, metricsToProcess);
-      default -> metricsMap = Map.of("invalid-statistic: " + statistic, 0.0);
-    }
-
-
-    return metricsMap;
+  private boolean noDatesPresent(LocalDate from, LocalDate to) {
+    return from == null && to == null;
   }
-
-  private Map<String, Double> processOverallStatistics(String statistic,
-                                                       Set<Map.Entry<String, List<SensorData>>> entries,
-                                                       List<String> metrics) {
-    List<SensorData> sensorDataList =
-        entries.stream().flatMap(entry -> entry.getValue().stream()).toList();
-
-    Map<String, Double> metricsMap;
-
-    switch (statistic.toLowerCase(Locale.ROOT)) {
-      case "average" -> metricsMap = statisticsMapper.mapAverageStatistic(sensorDataList, metrics);
-      case "sum" -> metricsMap = statisticsMapper.mapSumStatistic(sensorDataList, metrics);
-      case "max" -> metricsMap = statisticsMapper.mapMaxStatistic(sensorDataList, metrics);
-      case "min" -> metricsMap = statisticsMapper.mapMinStatistic(sensorDataList, metrics);
-      default -> metricsMap = Map.of("invalid-statistic: " + statistic, 0.0);
-    }
-
-    return metricsMap;
-  }
-
 
 }
 
