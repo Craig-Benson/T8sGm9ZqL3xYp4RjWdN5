@@ -25,12 +25,14 @@ public class SensorData {
   private String sensorId;
   @NotNull(message = "Date is required")
   private LocalDate date;
+  @NotNull
   private double temperature;
   @Min(value = 0, message = "Humidity must be greater than 0")
+  @NotNull
   private double humidity;
   @Min(value = 0, message = "Wind speed must be greater than 0")
+  @NotNull
   private double windSpeed;
-
 
   protected SensorData() {
   }
