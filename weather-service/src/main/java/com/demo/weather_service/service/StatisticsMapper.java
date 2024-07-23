@@ -15,17 +15,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class StatisticsMapper {
 
-  Map<String, Double> mapAverageStatistic(int count, List<SensorData> sensorDatas,
+  Map<String, Double> mapAverageStatistic(List<SensorData> sensorDatas,
                                           List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
 
     for (String metricToProcess : metricsToProcess) {
       switch (metricToProcess.toLowerCase(Locale.ROOT)) {
-        case "temperature" -> statisticsMap.put(metricToProcess, getAverage(count,
+        case "temperature" -> statisticsMap.put(metricToProcess, getAverage(sensorDatas.size(),
             sensorDatas.stream().mapToDouble(SensorData::getTemperature)));
-        case "humidity" -> statisticsMap.put(metricToProcess, getAverage(count,
+        case "humidity" -> statisticsMap.put(metricToProcess, getAverage(sensorDatas.size(),
             sensorDatas.stream().mapToDouble(SensorData::getHumidity)));
-        case "windspeed" -> statisticsMap.put(metricToProcess, getAverage(count,
+        case "windspeed" -> statisticsMap.put(metricToProcess, getAverage(sensorDatas.size(),
             sensorDatas.stream().mapToDouble(SensorData::getWindSpeed)));
         default -> statisticsMap.put("invalid-metric", 0.0);
 
