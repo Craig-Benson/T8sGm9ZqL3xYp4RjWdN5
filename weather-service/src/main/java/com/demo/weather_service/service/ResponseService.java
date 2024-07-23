@@ -1,7 +1,14 @@
 package com.demo.weather_service.service;
 
 import com.demo.weather_service.data.SensorData;
+import com.demo.weather_service.response.ApiResponse;
+import com.demo.weather_service.response.InvalidResponse;
+import com.demo.weather_service.response.SensorDataResponse;
+import com.demo.weather_service.response.SensorDatasResponse;
+import com.demo.weather_service.response.StatisticsResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -9,19 +16,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResponseService {
 
-  public ResponseEntity<SensorData> createLatestStateResponse(SensorData sensorData) {
+  @Autowired
+  ObjectMapper objectMapper;
+
+  public ResponseEntity<SensorDataResponse> createLatestStateResponse(SensorData sensorData) {
 
     if (sensorData == null) {
       return ResponseEntity.notFound().build();
     }
 
-    return ResponseEntity.ok().body(sensorData);
+    return ResponseEntity.ok().body(new SensorDataResponse(sensorData));
   }
 
-  public ResponseEntity<Map<String, SensorData>> createMultipleSensorDataResponse(
+  public ResponseEntity<ApiResponse> createLatestStatesResponse(
       Map<String, SensorData> sensorDataMap) {
 
-     int valid = 0;
+    int valid = 0;
     int invalid = 0;
 
     for (Map.Entry<String, SensorData> entry : sensorDataMap.entrySet()) {
@@ -33,18 +43,18 @@ public class ResponseService {
       }
     }
     if (valid > 0 && invalid > 0) {
-      return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(sensorDataMap);
+      return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(new SensorDatasResponse(sensorDataMap));
     }
 
     if (valid == 0) {
       return ResponseEntity.notFound().build();
     }
 
-    return ResponseEntity.ok().body(sensorDataMap);
+    return ResponseEntity.ok().body(new SensorDatasResponse(sensorDataMap));
 
   }
 
-  public ResponseEntity<Map<String, Map<String, Double>>> createStatisticsResponse(
+  public ResponseEntity<ApiResponse> createStatisticsResponse(
       Map<String, Map<String, Double>> statistics) {
 
     int valid = 0;
@@ -62,18 +72,22 @@ public class ResponseService {
       }
     }
     if (valid > 0 && invalid > 0) {
-      return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(statistics);
+
+      return ResponseEntity.status(HttpStatus.MULTI_STATUS)
+          .body(new StatisticsResponse(statistics));
     }
 
     if (valid == 0) {
       return ResponseEntity.notFound().build();
     }
 
-    return ResponseEntity.ok().body(statistics);
+    return ResponseEntity.ok(new StatisticsResponse(statistics));
 
   }
 
-
+  public ResponseEntity<ApiResponse> createInvalidDateResponse() {
+    return ResponseEntity.badRequest().body(new InvalidResponse("Invalid date range"));
+  }
 }
 
 
