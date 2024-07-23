@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.demo.weather_service.data.SensorData;
 import com.demo.weather_service.fixtures.SensorDataFixture;
 import com.demo.weather_service.repository.SensorDataRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@WithMockUser
 class UserControllerTest {
 
   @Autowired
@@ -30,9 +31,6 @@ class UserControllerTest {
   @Autowired
 
   private SensorDataRepository repository;
-
-  @Autowired
-  private ObjectMapper jacksonObjectMapper;
 
   @BeforeEach
   public void setup() {
@@ -45,9 +43,10 @@ class UserControllerTest {
     SensorData testSensorData = SensorDataFixture.getSensorDataForDb(1L);
     repository.save(testSensorData);
 
+    String expected = "{\"result\":{\"id\":1,\"sensorId\":\"valid-sensor-id\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}}";
     mockMvc.perform(MockMvcRequestBuilders.get("/weather-service"))
         .andExpect(status().isOk())
-        .andExpect(content().string(jacksonObjectMapper.writeValueAsString(testSensorData)))
+        .andExpect(content().string(expected))
         .andReturn();
 
   }
@@ -63,9 +62,9 @@ class UserControllerTest {
     repository.save(testThirdSensorData);
 
     String expectedSensorDataJson =
-        "{\"sensor-1\":{\"id\":1,\"sensorId\":\"sensor-1\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}," +
+        "{\"result\":{\"sensor-1\":{\"id\":1,\"sensorId\":\"sensor-1\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}," +
             "\"sensor-2\":{\"id\":2,\"sensorId\":\"sensor-2\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}," +
-            "\"sensor-3\":{\"id\":3,\"sensorId\":\"sensor-3\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}}";
+            "\"sensor-3\":{\"id\":3,\"sensorId\":\"sensor-3\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}}}";
 
 
     mockMvc.perform(MockMvcRequestBuilders.get("/weather-service/sensor-1,sensor-2,sensor-3"))
@@ -101,9 +100,8 @@ class UserControllerTest {
     repository.save(testSecondSensorData);
     repository.save(testThirdSensorData);
 
-    //TODO:should i fliter the null out
     String expectedSensorDataJson =
-        "{\"sensor-1\":{\"id\":1,\"sensorId\":\"sensor-1\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}}";
+        "{\"result\":{\"sensor-1\":{\"id\":1,\"sensorId\":\"sensor-1\",\"date\":\"2024-01-01\",\"temperature\":10.0,\"humidity\":60.0,\"windSpeed\":5.0}}}";
 
 
     mockMvc.perform(MockMvcRequestBuilders.get("/weather-service/sensor-1,invalid-sensor"))
@@ -124,7 +122,7 @@ class UserControllerTest {
     repository.save(testSensorData);
     repository.save(testAlternateFirstSensorData);
 
-    String expectedSensorDataJson = "{\"sensor-1\":{\"Humidity\":55.0}}";
+    String expectedSensorDataJson = "{\"result\":{\"sensor-1\":{\"Humidity\":55.0}}}";
 
 
     mockMvc.perform(MockMvcRequestBuilders.get(
@@ -135,26 +133,27 @@ class UserControllerTest {
 
   }
 
-//  @Test
-//  public void shouldProcessesMultipleSensorIdWithSingleMetricWithSingleStatisticWhenNoDatePresent() throws Exception {
-//    SensorData testSensorData =
-//        SensorDataFixture.getSensorDataForDb(1L, "sensor-1", LocalDate.of(2024, 1, 1), 10, 60.0,5);
-//    SensorData testAlternateFirstSensorData =
-//        SensorDataFixture.getSensorDataForDb(2L, "sensor-1", LocalDate.of(2024, 1, 1), 5, 50.0,2.0);
-//
-//    repository.save(testSensorData);
-//    repository.save(testAlternateFirstSensorData);
-//
-//    String expectedSensorDataJson = "{\"sensor-1\":{\"Humidity\":55.0}}";
-//
-//
-//    mockMvc.perform(MockMvcRequestBuilders.get(
-//            "/weather-service/sensor-1/Humidity/Average"))
-//        .andExpect(status().isOk())
-//        .andExpect(content().string(expectedSensorDataJson))
-//        .andReturn();
-//
-//  }
+  //TODO: figure this out
+  @Test
+  public void shouldProcessesMultipleSensorIdWithSingleMetricWithSingleStatisticWhenNoDatePresent() throws Exception {
+    SensorData testSensorData =
+        SensorDataFixture.getSensorDataForDb(1L, "sensor-1", LocalDate.of(2024, 1, 1), 10, 60.0,5);
+    SensorData testAlternateFirstSensorData =
+        SensorDataFixture.getSensorDataForDb(2L, "sensor-1", LocalDate.of(2024, 1, 1), 5, 50.0,2.0);
+
+    repository.save(testSensorData);
+    repository.save(testAlternateFirstSensorData);
+
+    String expectedSensorDataJson = "{\"result\":{\"sensor-1\":{\"Humidity\":55.0}}}";
+
+
+    mockMvc.perform(MockMvcRequestBuilders.get(
+            "/weather-service/sensor-1/Humidity/Average"))
+        .andExpect(status().isOk())
+        .andExpect(content().string(expectedSensorDataJson))
+        .andReturn();
+
+  }
 
   @Test
   public void shouldProcessesMultipleSensorIdWithMultipleMetricWithMultipleStatisticWithValidDatePresent()
@@ -178,8 +177,8 @@ class UserControllerTest {
     repository.save(sensorTwoAlternateData);
 
     String expectedSensorDataJson =
-        "{\"sensor-1\":{\"temperature\":7.5,\"humidity\":55.0,\"windspeed\":3.5}," +
-            "\"sensor-2\":{\"temperature\":3.75,\"humidity\":45.0,\"windspeed\":3.75}}";
+        "{\"result\":{\"sensor-1\":{\"temperature\":7.5,\"humidity\":55.0,\"windspeed\":3.5}," +
+            "\"sensor-2\":{\"temperature\":3.75,\"humidity\":45.0,\"windspeed\":3.75}}}";
 
 
     mockMvc.perform(MockMvcRequestBuilders.get(
@@ -220,9 +219,9 @@ class UserControllerTest {
     repository.save(sensorThreeAlternateData);
 
     String expectedSensorDataJson =
-        "{\"sensor-1\":{\"temperature\":7.5,\"humidity\":55.0,\"windspeed\":3.5}," +
+        "{\"result\":{\"sensor-1\":{\"temperature\":7.5,\"humidity\":55.0,\"windspeed\":3.5}," +
             "\"sensor-2\":{\"temperature\":3.75,\"humidity\":45.0,\"windspeed\":3.75}," +
-            "\"sensor-3\":{\"temperature\":1.75,\"humidity\":35.0,\"windspeed\":1.75}}";
+            "\"sensor-3\":{\"temperature\":1.75,\"humidity\":35.0,\"windspeed\":1.75}}}";
 
 
     mockMvc.perform(MockMvcRequestBuilders.get(
@@ -232,6 +231,25 @@ class UserControllerTest {
         .andReturn();
   }
 
+  @Test
+  void shouldReturnInvalidResponseWhenRequestDateIsGreaterThan30DaysForMultipleSensors() throws Exception {
+
+    mockMvc.perform(MockMvcRequestBuilders.get(
+            "/weather-service/sensor-1,sensor-2/humidity,temperature,windspeed/average?from=2024-01-01&to=2024-02-02"))
+        .andExpect(status().is4xxClientError())
+        .andExpect(content().string("{\"result\":\"Invalid date range\"}"))
+        .andReturn();
+  }
+
+  @Test
+  void shouldReturnInvalidResponseWhenRequestDateIsGreaterThan30DaysForAllSensors() throws Exception {
+
+    mockMvc.perform(MockMvcRequestBuilders.get(
+            "/weather-service/all-sensors/humidity,temperature,windspeed/average?from=2024-01-01&to=2024-02-02"))
+        .andExpect(status().is4xxClientError())
+        .andExpect(content().string("{\"result\":\"Invalid date range\"}"))
+        .andReturn();
+  }
 }
 
 

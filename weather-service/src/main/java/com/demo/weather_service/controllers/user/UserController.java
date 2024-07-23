@@ -1,11 +1,12 @@
 package com.demo.weather_service.controllers.user;
 
-import com.demo.weather_service.data.SensorData;
+import com.demo.weather_service.response.ApiResponse;
+import com.demo.weather_service.response.SensorDataResponse;
 import com.demo.weather_service.service.ResponseService;
 import com.demo.weather_service.service.SensorDataService;
+import com.demo.weather_service.util.DateRangeValidatorUtil;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,21 +26,20 @@ public class UserController {
   }
 
   @GetMapping("/weather-service")
-  public ResponseEntity<SensorData> getLatestState() {
+  public ResponseEntity<SensorDataResponse> getLatestState() {
     return responseService.createLatestStateResponse(sensorDataService.getLatestState());
   }
 
   @GetMapping("/weather-service/{sensorIds}")
-  public ResponseEntity<Map<String, SensorData>> getLatestStateForSensorIds(
+  public ResponseEntity<ApiResponse> getLatestStateForSensorIds(
       @PathVariable List<String> sensorIds) {
 
-    return responseService.createMultipleSensorDataResponse(
+    return responseService.createLatestStatesResponse(
         sensorDataService.getLatestStateForSensorIds(sensorIds));
   }
 
-
   @GetMapping("/weather-service/{sensorIds}/{metrics}/{statistic}")
-  public ResponseEntity<Map<String, Map<String, Double>>> getMetricsStatistics(
+  public ResponseEntity<ApiResponse> getMetricsStatistics(
       @PathVariable List<String> sensorIds,
       @PathVariable List<String> metrics,
       @PathVariable String statistic,
@@ -49,24 +49,30 @@ public class UserController {
       @RequestParam(value = "to", required = false)
       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       LocalDate to) {
+
+    if (!DateRangeValidatorUtil.withinValidDateRange(from, to)) {
+      return responseService.createInvalidDateResponse();
+    }
+
     return responseService.createStatisticsResponse(
         sensorDataService.getMetricsStatisticsForSensors(sensorIds, statistic, metrics, from,
             to));
+
   }
 
   @GetMapping("/weather-service/all-sensors/{metrics}/{statistic}")
-  public ResponseEntity<Map<String, Map<String, Double>>> getAllSensorIdMetricsStatistics(
+  public ResponseEntity<ApiResponse> getAllSensorIdMetricsStatistics(
       @PathVariable List<String> metrics,
       @PathVariable String statistic,
       @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       LocalDate from,
       @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
       LocalDate to) {
-
+    if (!DateRangeValidatorUtil.withinValidDateRange(from, to)) {
+      return responseService.createInvalidDateResponse();
+    }
     return responseService.createStatisticsResponse(
         sensorDataService.getMetricsStatisticsForAllSensors(metrics, statistic, from,
             to));
   }
-
-
 }
