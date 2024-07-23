@@ -26,16 +26,16 @@ public class SensorDataService {
 
   public Map<String, SensorData> getLatestStateForSensorIds(List<String> sensorIds) {
 
-    Map<String, SensorData> map = new HashMap<>();
+    Map<String, SensorData> sensorData = new HashMap<>();
     for (String sensorId : sensorIds) {
       //queue if unavailable
-      SensorData sensorData = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
-      if (sensorData != null) {
-        map.put(sensorId, sensorData);
+      SensorData sensorDataEntry = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
+      if (sensorDataEntry != null) {
+        sensorData.put(sensorId, sensorDataEntry);
       }
     }
 
-    return map;
+    return sensorData;
   }
 
   //async
