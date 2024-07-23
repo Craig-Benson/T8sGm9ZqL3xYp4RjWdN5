@@ -72,7 +72,8 @@ public class SensorDataService {
     return map;
   }
 
-  private Map<String, List<SensorData>> getSensorDataBetweenDates(List<String> sensorIds, LocalDate from,
+  private Map<String, List<SensorData>> getSensorDataBetweenDates(List<String> sensorIds,
+                                                                  LocalDate from,
                                                                   LocalDate to) {
     Map<String, List<SensorData>> mappedSensorData = new HashMap<>();
     for (String sensorId : sensorIds) {
@@ -104,8 +105,8 @@ public class SensorDataService {
     Map<String, Double> metricsMap;
 
     switch (statistic.toLowerCase(Locale.ROOT)) {
-      case "average" -> metricsMap =
-          statisticsMapper.mapAverageStatistic(sensorData.size(), sensorData, metricsToProcess);
+      case "average" ->
+          metricsMap = statisticsMapper.mapAverageStatistic(sensorData, metricsToProcess);
       case "sum" -> metricsMap = statisticsMapper.mapSumStatistic(sensorData, metricsToProcess);
       case "max" -> metricsMap = statisticsMapper.mapMaxStatistic(sensorData, metricsToProcess);
       case "min" -> metricsMap = statisticsMapper.mapMinStatistic(sensorData, metricsToProcess);
