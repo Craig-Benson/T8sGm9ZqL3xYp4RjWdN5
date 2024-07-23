@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.demo.weather_service.data.SensorData;
 import com.demo.weather_service.fixtures.SensorDataFixture;
+import com.demo.weather_service.service.mapper.StatisticsMapper;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

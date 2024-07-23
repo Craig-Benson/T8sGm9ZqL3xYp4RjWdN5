@@ -1,4 +1,4 @@
-package com.demo.weather_service.service;
+package com.demo.weather_service.service.mapper;
 
 import static com.demo.weather_service.util.StatisticUtil.getAverage;
 import static com.demo.weather_service.util.StatisticUtil.getMax;
@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class StatisticsMapper {
 
-  Map<String, Double> mapAverageStatistic(List<SensorData> sensorDatas,
-                                          List<String> metricsToProcess) {
+  public Map<String, Double> mapAverageStatistic(List<SensorData> sensorDatas,
+                                                 List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
 
     for (String metricToProcess : metricsToProcess) {
@@ -34,8 +34,8 @@ public class StatisticsMapper {
     return statisticsMap;
   }
 
-  Map<String, Double> mapSumStatistic(List<SensorData> sensorData,
-                                      List<String> metricsToProcess) {
+  public Map<String, Double> mapSumStatistic(List<SensorData> sensorData,
+                                             List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
     for (String metricToProcess : metricsToProcess) {
       switch (metricToProcess.toLowerCase(Locale.ROOT)) {
@@ -51,8 +51,8 @@ public class StatisticsMapper {
     return statisticsMap;
   }
 
-  Map<String, Double> mapMaxStatistic(List<SensorData> sensorData,
-                                      List<String> metricsToProcess) {
+  public Map<String, Double> mapMaxStatistic(List<SensorData> sensorData,
+                                             List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
     for (String metricToProcess : metricsToProcess) {
       switch (metricToProcess.toLowerCase(Locale.ROOT)) {
@@ -68,8 +68,8 @@ public class StatisticsMapper {
     return statisticsMap;
   }
 
-  Map<String, Double> mapMinStatistic(List<SensorData> sensorData,
-                                      List<String> metricsToProcess) {
+  public Map<String, Double> mapMinStatistic(List<SensorData> sensorData,
+                                             List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
     for (String metricToProcess : metricsToProcess) {
       switch (metricToProcess.toLowerCase(Locale.ROOT)) {

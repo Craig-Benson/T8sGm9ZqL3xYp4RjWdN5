@@ -2,6 +2,7 @@ package com.demo.weather_service.service;
 
 import com.demo.weather_service.data.SensorData;
 import com.demo.weather_service.repository.SensorDataRepository;
+import com.demo.weather_service.service.mapper.StatisticsMapper;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
