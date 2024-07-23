@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -48,18 +50,22 @@ public class SensorDataService {
       LocalDate to
   ) {
 
-
-    Map<String, Map<String, Double>> statistics = new HashMap<>();
+    Map<String, Map<String, Double>> statistics = new TreeMap<>();
 
     Map<String, List<SensorData>> sensorDataBySensorId =
         noDatesPresent(from, to) ? getLatestSensorDataFor(sensorIds) :
             getSensorDataBetweenDates(sensorIds, from, to);
 
+    statistics.put("overall",
+        processOverallStatistics(statistic, sensorDataBySensorId.entrySet(), metrics));
+
     sensorDataBySensorId.forEach((key, value) ->
         statistics.put(key, processStatistics(statistic, value, metrics)));
 
+
     return statistics;
   }
+
 
   private Map<String, List<SensorData>> getLatestSensorDataFor(List<String> sensorIds) {
     Map<String, List<SensorData>> map = new HashMap<>();
@@ -117,6 +123,26 @@ public class SensorDataService {
 
     return metricsMap;
   }
+
+  private Map<String, Double> processOverallStatistics(String statistic,
+                                                       Set<Map.Entry<String, List<SensorData>>> entries,
+                                                       List<String> metrics) {
+    List<SensorData> sensorDataList =
+        entries.stream().flatMap(entry -> entry.getValue().stream()).toList();
+
+    Map<String, Double> metricsMap;
+
+    switch (statistic.toLowerCase(Locale.ROOT)) {
+      case "average" -> metricsMap = statisticsMapper.mapAverageStatistic(sensorDataList, metrics);
+      case "sum" -> metricsMap = statisticsMapper.mapSumStatistic(sensorDataList, metrics);
+      case "max" -> metricsMap = statisticsMapper.mapMaxStatistic(sensorDataList, metrics);
+      case "min" -> metricsMap = statisticsMapper.mapMinStatistic(sensorDataList, metrics);
+      default -> metricsMap = Map.of("invalid-statistic: " + statistic, 0.0);
+    }
+
+    return metricsMap;
+  }
+
 
 }
 
