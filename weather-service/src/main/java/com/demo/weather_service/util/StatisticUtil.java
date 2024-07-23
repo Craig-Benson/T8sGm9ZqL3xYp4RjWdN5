@@ -2,10 +2,11 @@ package com.demo.weather_service.util;
 
 import java.util.OptionalDouble;
 import java.util.stream.DoubleStream;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StatisticUtil {
+  static Logger logger = LoggerFactory.getLogger(StatisticUtil.class);
 
   public static double getAverage(int count, DoubleStream metricStream) {
     return metricStream.sum() / count;
@@ -20,17 +21,18 @@ public class StatisticUtil {
     if (min.isPresent()) {
       return min.getAsDouble();
     }
-    //TODO: fix
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No data found");
+    logger.error("msg= {}, default: {}", "Min was not able to be processed returning default.", 0.0);
+    return 0.0;
   }
 
   public static double getMax(DoubleStream metricStream) {
+
     OptionalDouble max = metricStream.max();
 
     if (max.isPresent()) {
       return max.getAsDouble();
     }
-    //TODO: fix
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No data found");
+    logger.error("msg= {}, default: {}", "Max was not able to be processed returning default.", 0.0);
+    return 0.0;
   }
 }
