@@ -44,6 +44,7 @@ With the app is running you can access the following:<br>
 This in memory H2 DB is only for local testing/demo purposes, in a real real world scenario this would be replaced with a deployed DB.<br> I have added some data to allow for local testing/demoing, the additions are located:
 weather-service/src/main/resources/data.sql
 <h3>Mock Data</h3>
+
 ![img_4.png](img_4.png)
 
 <h2>Requests</h2>
