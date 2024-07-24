@@ -39,7 +39,7 @@ class UserControllerTest {
 
   @Test
   public void shouldRetrieveLatestState() throws Exception {
-    SensorData testSensorData = SensorDataFixture.getSensorDataForDb(1L);
+    SensorData testSensorData = SensorDataFixture.getDbSensorData(1L);
     repository.save(testSensorData);
 
     String expected =
@@ -53,9 +53,9 @@ class UserControllerTest {
 
   @Test
   public void shouldRetrieveLatestStateForAllRequestedSensors() throws Exception {
-    SensorData testFirstSensorData = SensorDataFixture.getSensorDataForDb(1L, "sensor-1");
-    SensorData testSecondSensorData = SensorDataFixture.getSensorDataForDb(2L, "sensor-2");
-    SensorData testThirdSensorData = SensorDataFixture.getSensorDataForDb(3L, "sensor-3");
+    SensorData testFirstSensorData = SensorDataFixture.getDbSensorData(1L, "sensor-1");
+    SensorData testSecondSensorData = SensorDataFixture.getDbSensorData(2L, "sensor-2");
+    SensorData testThirdSensorData = SensorDataFixture.getDbSensorData(3L, "sensor-3");
 
     repository.save(testFirstSensorData);
     repository.save(testSecondSensorData);
@@ -75,9 +75,9 @@ class UserControllerTest {
 
   @Test
   public void shouldReturnNotFoundResponseWhenNoSensorDataFound() throws Exception {
-    SensorData testFirstSensorData = SensorDataFixture.getSensorDataForDb(1L, "sensor-1");
-    SensorData testSecondSensorData = SensorDataFixture.getSensorDataForDb(2L, "sensor-2");
-    SensorData testThirdSensorData = SensorDataFixture.getSensorDataForDb(3L, "sensor-3");
+    SensorData testFirstSensorData = SensorDataFixture.getDbSensorData(1L, "sensor-1");
+    SensorData testSecondSensorData = SensorDataFixture.getDbSensorData(2L, "sensor-2");
+    SensorData testThirdSensorData = SensorDataFixture.getDbSensorData(3L, "sensor-3");
 
     repository.save(testFirstSensorData);
     repository.save(testSecondSensorData);
@@ -92,9 +92,9 @@ class UserControllerTest {
   @Test
   public void shouldFilterInvalidSensorIdAndProcessValidSensorId()
       throws Exception {
-    SensorData testFirstSensorData = SensorDataFixture.getSensorDataForDb(1L, "sensor-1");
-    SensorData testSecondSensorData = SensorDataFixture.getSensorDataForDb(2L, "sensor-2");
-    SensorData testThirdSensorData = SensorDataFixture.getSensorDataForDb(3L, "sensor-3");
+    SensorData testFirstSensorData = SensorDataFixture.getDbSensorData(1L, "sensor-1");
+    SensorData testSecondSensorData = SensorDataFixture.getDbSensorData(2L, "sensor-2");
+    SensorData testThirdSensorData = SensorDataFixture.getDbSensorData(3L, "sensor-3");
 
     repository.save(testFirstSensorData);
     repository.save(testSecondSensorData);
@@ -110,19 +110,21 @@ class UserControllerTest {
         .andReturn();
   }
 
-
+  //TODO FIX
   @Test
   public void shouldProcessesSingleSensorIdWithSingleMetricWithSingleStatistic() throws Exception {
+
+
     SensorData testSensorData =
-        SensorDataFixture.getSensorDataForDb(1L, "sensor-1", LocalDate.of(2024, 1, 1), 10, 60.0, 5);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 1), 10.0, 60.0, 5.0);
     SensorData testAlternateFirstSensorData =
-        SensorDataFixture.getSensorDataForDb(2L, "sensor-1", LocalDate.of(2024, 1, 2), 5, 50.0,
-            2.0);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 2), 5.0, 50.0, 2.0);
 
     repository.save(testSensorData);
     repository.save(testAlternateFirstSensorData);
 
-    String expectedSensorDataJson = "{\"result\":{\"overall\":{\"Humidity\":55.0},\"sensor-1\":{\"Humidity\":55.0}}}";
+    String expectedSensorDataJson =
+        "{\"result\":{\"overall\":{\"Humidity\":55.0},\"sensor-1\":{\"Humidity\":55.0}}}";
 
 
     mockMvc.perform(MockMvcRequestBuilders.get(
@@ -134,13 +136,14 @@ class UserControllerTest {
   }
 
   @Test
-  public void shouldProcessesMultipleSensorIdLatestStateWithSingleStatisticWhenNoDatePresent() throws Exception {
+  public void shouldProcessesMultipleSensorIdLatestStateWithSingleStatisticWhenNoDatePresent()
+      throws Exception {
     SensorData testSensorData =
-        SensorDataFixture.getSensorDataForDb(1L, "sensor-1", LocalDate.of(2024, 1, 1), 10, 60.0,5);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 1), 10.0, 60.0, 5.0);
     SensorData testAlternateFirstSensorData =
-        SensorDataFixture.getSensorDataForDb(2L, "sensor-1", LocalDate.of(2024, 1, 1), 5, 40.0,2.0);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 1), 5.0, 40.0, 2.0);
     SensorData testSecondSensorData =
-        SensorDataFixture.getSensorDataForDb(3L, "sensor-2", LocalDate.of(2024, 1, 1), 5, 50.0,3.0);
+        SensorDataFixture.getSensorData("sensor-2", LocalDate.of(2024, 1, 1), 5.0, 50.0, 3.0);
 
     repository.save(testSensorData);
     repository.save(testAlternateFirstSensorData);
@@ -159,21 +162,23 @@ class UserControllerTest {
   }
 
   @Test
-  public void shouldProcessesMultipleSensorIdLatestStateWithMultipleStatisticWhenNoDatePresent() throws Exception {
+  public void shouldProcessesMultipleSensorIdLatestStateWithMultipleStatisticWhenNoDatePresent()
+      throws Exception {
     SensorData testSensorData =
-        SensorDataFixture.getSensorDataForDb(1L, "sensor-1", LocalDate.of(2024, 1, 1), 10, 60.0,5);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 1), 10.0, 60.0, 5.0);
     SensorData testAlternateFirstSensorData =
-        SensorDataFixture.getSensorDataForDb(2L, "sensor-1", LocalDate.of(2024, 1, 1), 5, 40.0,2.0);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 1), 5.0, 40.0, 2.0);
     SensorData testSecondSensorData =
-        SensorDataFixture.getSensorDataForDb(3L, "sensor-2", LocalDate.of(2024, 1, 1), 5, 50.0,3.0);
+        SensorDataFixture.getSensorData("sensor-2", LocalDate.of(2024, 1, 1), 5.0, 50.0, 3.0);
 
     repository.save(testSensorData);
     repository.save(testAlternateFirstSensorData);
     repository.save(testSecondSensorData);
 
-    String expectedSensorDataJson = "{\"result\":{\"overall\":{\"temperature\":7.5,\"humidity\":55.0,\"windspeed\":4.0}," +
-        "\"sensor-1\":{\"temperature\":10.0,\"humidity\":60.0,\"windspeed\":5.0}," +
-        "\"sensor-2\":{\"temperature\":5.0,\"humidity\":50.0,\"windspeed\":3.0}}}";
+    String expectedSensorDataJson =
+        "{\"result\":{\"overall\":{\"temperature\":7.5,\"humidity\":55.0,\"windspeed\":4.0}," +
+            "\"sensor-1\":{\"temperature\":10.0,\"humidity\":60.0,\"windspeed\":5.0}," +
+            "\"sensor-2\":{\"temperature\":5.0,\"humidity\":50.0,\"windspeed\":3.0}}}";
 
 
     mockMvc.perform(MockMvcRequestBuilders.get(
@@ -188,17 +193,17 @@ class UserControllerTest {
   public void shouldProcessesMultipleSensorIdWithMultipleMetricWithMultipleStatisticWithValidDatePresent()
       throws Exception {
     SensorData sensorOneData =
-        SensorDataFixture.getSensorDataForDb(1L, "sensor-1", LocalDate.of(2024, 1, 2), 10, 60.0, 5);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 2), 10.0, 60.0, 5.0);
     SensorData sensorOneAlternateData =
-        SensorDataFixture.getSensorDataForDb(2L, "sensor-1", LocalDate.of(2024, 1, 2), 5, 50.0,
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 2), 5.0, 50.0,
             2.0);
 
     SensorData sensorTwoData =
-        SensorDataFixture.getSensorDataForDb(3L, "sensor-2", LocalDate.of(2024, 1, 2), 5, 50.0,
+        SensorDataFixture.getSensorData("sensor-2", LocalDate.of(2024, 1, 2), 5.0, 50.0,
             2.5);
     SensorData sensorTwoAlternateData =
-        SensorDataFixture.getSensorDataForDb(4L, "sensor-2", LocalDate.of(2024, 1, 2), 2.5, 40.0,
-            5);
+        SensorDataFixture.getSensorData("sensor-2", LocalDate.of(2024, 1, 2), 2.5, 40.0,
+            5.0);
 
     repository.save(sensorOneData);
     repository.save(sensorOneAlternateData);
@@ -222,23 +227,23 @@ class UserControllerTest {
   public void shouldProcessesAllSensorIdWithMultipleMetricWithMultipleStatisticWithValidDatePresent()
       throws Exception {
     SensorData sensorOneData =
-        SensorDataFixture.getSensorDataForDb(1L, "sensor-1", LocalDate.of(2024, 1, 1), 10, 60.0, 5);
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 1), 10.0, 60.0, 5.0);
     SensorData sensorOneAlternateData =
-        SensorDataFixture.getSensorDataForDb(2L, "sensor-1", LocalDate.of(2024, 1, 2), 5, 50.0,
+        SensorDataFixture.getSensorData("sensor-1", LocalDate.of(2024, 1, 2), 5.0, 50.0,
             2.0);
 
     SensorData sensorTwoData =
-        SensorDataFixture.getSensorDataForDb(3L, "sensor-2", LocalDate.of(2024, 1, 1), 5, 50.0,
+        SensorDataFixture.getSensorData("sensor-2", LocalDate.of(2024, 1, 1), 5.0, 50.0,
             2.5);
     SensorData sensorTwoAlternateData =
-        SensorDataFixture.getSensorDataForDb(4L, "sensor-2", LocalDate.of(2024, 1, 2), 2.5, 40.0,
-            5);
+        SensorDataFixture.getSensorData("sensor-2", LocalDate.of(2024, 1, 2), 2.5, 40.0,
+            5.0);
 
     SensorData sensorThreeData =
-        SensorDataFixture.getSensorDataForDb(5L, "sensor-3", LocalDate.of(2024, 1, 1), 2.5, 40.0,
-            1);
+        SensorDataFixture.getSensorData("sensor-3", LocalDate.of(2024, 1, 1), 2.5, 40.0,
+            1.0);
     SensorData sensorThreeAlternateData =
-        SensorDataFixture.getSensorDataForDb(6L, "sensor-3", LocalDate.of(2024, 1, 2), 1, 30.0,
+        SensorDataFixture.getSensorData("sensor-3", LocalDate.of(2024, 1, 2), 1.0, 30.0,
             2.5);
 
     repository.save(sensorOneData);
