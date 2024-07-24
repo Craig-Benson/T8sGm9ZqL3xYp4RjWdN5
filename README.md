@@ -7,12 +7,12 @@ SpringBoot</br>
 
 <h2>Description</h2>
 This application has the following 2 responsibilities:
-1. Receive and persist metrics provided by sensors via a Post request</br>
-2. Retrieve and query the persisted metrics via Get requests
+- Receive and persist metrics provided by sensors via a Post request</br>
+- Retrieve and query the persisted metrics via Get requests</br>
    
-<h3>To start the application</h3>
-1. cd into weather-service module and run mvn clean install 
-2. run WeatherServiceApplication located at: src/main/java/com/demo/weather_service/WeatherServiceApplication.java
+<h3>To start the application</h3> 
+- cd into weather-service module and run mvn clean install </br>
+- run WeatherServiceApplication located at: src/main/java/com/demo/weather_service/WeatherServiceApplication.java</br>
 
 
 <h2>Useful links:</h2>
