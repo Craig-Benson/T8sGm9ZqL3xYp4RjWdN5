@@ -97,10 +97,12 @@ Get all sensors with multiple metrics, average statistic, with a time range
 http://localhost:8080/weather-service/all-sensors/temperature,humidity,windspeed/average?from=2024-07-16&to=2024-07-19
 
 <h3>Example from Swagger UI</h3>
+
 ![img_3.png](img_3.png)
 
-Example Post Request from sensor
-`http://localhost:8080/weather-service/update`
+<h3>Example Post Request from sensor</h3>
+http://localhost:8080/weather-service/update
+
 ```
 {
 "sensorId": "sensor-1",
