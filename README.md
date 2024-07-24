@@ -43,6 +43,8 @@ With the app is running you can access the following:<br>
 
 This in memory H2 DB is only for local testing/demo purposes, in a real real world scenario this would be replaced with a deployed DB.<br> I have added some data to allow for local testing/demoing, the additions are located:
 weather-service/src/main/resources/data.sql
+<h3>Mock Data</h3>
+![img_4.png](img_4.png)
 
 <h2>Requests</h2>
 You can test the requests via the Swagger UI or via applications such as Postman/Api Tester<br>
@@ -92,6 +94,8 @@ Get all sensors with multiple metrics, average statistic, with a time range
 <br>
 http://localhost:8080/weather-service/all-sensors/temperature,humidity,windspeed/average?from=2024-07-16&to=2024-07-19
 
+<h3>Example from Swagger UI</h3>
+![img_3.png](img_3.png)
 
 Example Post Request from sensor
 `http://localhost:8080/weather-service/update`
