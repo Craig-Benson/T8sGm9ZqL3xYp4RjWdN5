@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -20,16 +21,14 @@ public class BasicAuthSecurityConfig {
         .httpBasic(Customizer.withDefaults())
         .sessionManagement((sessionManagement) ->
             sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .csrf((csrf) -> csrf.disable());
+        .csrf((csrf) -> csrf.disable())
+        .headers((headers) -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 
-    //allows gui for h2
-    http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
     return http.build();
 
 
   }
 
-  //allows for CORS cross origin access
   @Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
@@ -41,7 +40,5 @@ public class BasicAuthSecurityConfig {
       }
     };
   }
-
-  //Creating users with non encoded pass
 
 }
