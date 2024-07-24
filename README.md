@@ -1,9 +1,9 @@
 # T8sGm9ZqL3xYp4RjWdN5
 
 <h2>Built with</h2>
-- Java version 17,
-- maven 3.9.2, 
-- SpringBoot
+Java version 17</br>
+maven 3.9.2 </br>
+SpringBoot</br>
 
 <h2>Description</h2>
 This application has the following 2 responsibilities:
