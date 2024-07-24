@@ -6,7 +6,7 @@ maven 3.9.2 </br>
 SpringBoot</br>
 
 <h2>Description</h2>
-This application has the following 2 responsibilities:
+This application has the following 2 responsibilities:</br>
 - Receive and persist metrics provided by sensors via a Post request</br>
 - Retrieve and query the persisted metrics via Get requests</br>
    
