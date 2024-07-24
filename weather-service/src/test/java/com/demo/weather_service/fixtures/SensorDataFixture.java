@@ -37,6 +37,7 @@ public class SensorDataFixture {
     return getSensorData(SENSOR_ID,DATE,TEMPERATURE,HUMIDITY,WIND_SPEED);
   }
 
+
   public static SensorData getSensorDataOneAlternate() {
     return SensorData.builder()
         .sensorId(SENSOR_ID)
@@ -47,28 +48,7 @@ public class SensorDataFixture {
         .build();
   }
 
-
-
-  public static SensorData getSensorDataForDb(long id, String sensorId, LocalDate date,
-                                              double temperature, double humidity,
-                                              double windSpeed) {
-
-    return SensorData.builder()
-        .id(id)
-        .sensorId(sensorId)
-        .date(date)
-        .temperature(temperature)
-        .humidity(humidity)
-        .windSpeed(windSpeed)
-        .build();
-
-  }
-
-  public static SensorData getSensorDataForDb(long id) {
-    return getSensorDataForDb(id, SENSOR_ID);
-  }
-
-  public static SensorData getSensorDataForDb(long id, String sensorId) {
+  public static SensorData getDbSensorData(long id, String sensorId) {
 
     return SensorData.builder()
         .id(id)
@@ -81,17 +61,8 @@ public class SensorDataFixture {
 
   }
 
-  public static SensorData getSensorDataForDb(long id, String sensorId, double temperature) {
-
-    return SensorData.builder()
-        .id(id)
-        .sensorId(sensorId)
-        .date(DATE)
-        .temperature(temperature)
-        .humidity(HUMIDITY)
-        .windSpeed(WIND_SPEED)
-        .build();
-
+  public static SensorData getDbSensorData(long id) {
+    return getDbSensorData(id, SENSOR_ID);
   }
 
   public static Map<String, SensorData> getSensorDataMap() {
