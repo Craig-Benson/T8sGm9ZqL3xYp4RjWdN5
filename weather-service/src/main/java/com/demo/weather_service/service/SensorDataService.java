@@ -8,10 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SensorDataService {
+  Logger logger = LoggerFactory.getLogger(SensorDataService.class);
 
   private final SensorDataRepository repository;
   private final StatisticsMapper statisticsMapper;
@@ -31,9 +34,11 @@ public class SensorDataService {
     for (String sensorId : sensorIds) {
       //queue if unavailable
       SensorData sensorDataEntry = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
-      if (sensorDataEntry != null) {
-        sensorData.put(sensorId, sensorDataEntry);
+      if (sensorDataEntry == null) {
+        logger.info("msg={}, sensor_id={}", "Nothing found for sensorId", sensorId);
+        continue;
       }
+      sensorData.put(sensorId, sensorDataEntry);
     }
 
     return sensorData;
@@ -51,8 +56,7 @@ public class SensorDataService {
     Map<String, Map<String, Double>> statistics = new TreeMap<>();
 
     Map<String, List<SensorData>> sensorDataBySensorId =
-        noDatesPresent(from, to) ? getLatestSensorDataFor(sensorIds) :
-            getSensorDataBetweenDates(sensorIds, from, to);
+        isDatesPresent(from, to) ? getSensorDataBetweenDates(sensorIds, from, to): getLatestSensorDataFor(sensorIds);
 
     statistics.put("overall",
         statisticsMapper.mapOverallStatistics(statistic, sensorDataBySensorId.entrySet(), metrics));
@@ -70,9 +74,11 @@ public class SensorDataService {
 
     for (String sensorId : sensorIds) {
       SensorData sensorData = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
-      if (sensorData.getSensorId() != null) {
-        map.put(sensorId, List.of(sensorData));
+      if (sensorData.getSensorId() == null) {
+        logger.info("msg={}, sensor_id={}", "Nothing found for sensorId", sensorId);
+        continue;
       }
+      map.put(sensorId, List.of(sensorData));
     }
     return map;
   }
@@ -84,9 +90,12 @@ public class SensorDataService {
     for (String sensorId : sensorIds) {
       List<SensorData> sensorData =
           repository.findSensorDataBySensorIdAndDateBetween(sensorId, from, to);
-      if (!sensorData.isEmpty()) {
-        mappedSensorData.put(sensorId, sensorData);
+      if (sensorData.isEmpty()) {
+        logger.info("msg={}, sensor_id={}", "Nothing found for sensorId", sensorId);
+        continue;
       }
+      mappedSensorData.put(sensorId, sensorData);
+
     }
     return mappedSensorData;
   }
@@ -99,8 +108,13 @@ public class SensorDataService {
         to);
   }
 
-  private boolean noDatesPresent(LocalDate from, LocalDate to) {
-    return from == null && to == null;
+  private boolean isDatesPresent(LocalDate from, LocalDate to) {
+    if (from != null && to != null) {
+      return true;
+    }
+
+    logger.info("msg={}", "No Dates present, retrieving latest");
+    return false;
   }
 
 }
