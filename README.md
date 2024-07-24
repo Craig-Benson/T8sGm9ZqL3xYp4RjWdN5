@@ -70,15 +70,23 @@ http://localhost:8080/weather-service/sensor-1
 The following requests will return the statistics for each sensor as well as an overall statistic, in the event where a from and to date are not provided the statistics will be generated using the latest state of each of the requested sensors<br>
 <br>
 Retrieve latest state for multiple sensors<br>
-http://localhost:8080/weather-service/sensor-1,sensor-2<br>
-Process statistics using latest state for multiple sensors for single metric when no date provided<br>
-http://localhost:8080/weather-service/sensor-1,sensor-2/temperature/average<br>
+http://localhost:8080/weather-service/sensor-1,sensor-2
+<br>
+Process statistics using latest state for multiple sensors for single metric when no date provided
+<br>
+http://localhost:8080/weather-service/sensor-1,sensor-2/temperature/average
+<br>
 Retrieve average statistics using latest state for multiple sensors for single metric when no date provided<br>
-http://localhost:8080/weather-service/sensor-1,sensor-2/temperature,humidity,windspeed/average<br>
-Retrieve sum statistics using latest state for multiple sensors for multiple metrics when no date provided<br>
-http://localhost:8080/weather-service/sensor-1,sensor-2/temperature,humidity,windspeed/sum<br>
-Retrieve statistics for multiple sensors for multiple metrics between 2 dates within a 30 day range<br>
-http://localhost:8080/weather-service/sensor-1,sensor-2/temperature,humidity,windspeed/average?from=2024-07-16&to=2024-07-19<br>
+http://localhost:8080/weather-service/sensor-1,sensor-2/temperature,humidity,windspeed/average
+<br>
+Retrieve sum statistics using latest state for multiple sensors for multiple metrics when no date provided<
+br>
+http://localhost:8080/weather-service/sensor-1,sensor-2/temperature,humidity,windspeed/sum
+<br>
+Retrieve statistics for multiple sensors for multiple metrics between 2 dates within a 30 day range
+<br>
+http://localhost:8080/weather-service/sensor-1,sensor-2/temperature,humidity,windspeed/average?from=2024-07-16&to=2024-07-19
+<br>
 Get all sensors with multiple metrics, average statistic, with a time range
 http://localhost:8080/weather-service/all-sensors/temperature,humidity,windspeed/average?from=2024-07-16&to=2024-07-19
 
