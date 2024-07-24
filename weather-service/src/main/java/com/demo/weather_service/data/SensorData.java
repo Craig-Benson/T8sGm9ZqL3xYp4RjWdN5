@@ -3,6 +3,7 @@ package com.demo.weather_service.data;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -24,10 +25,14 @@ public class SensorData {
   private String sensorId;
   @NotNull(message = "Date is required")
   private LocalDate date;
-  private double temperature;
-  private double humidity;
-  private double windSpeed;
-
+  @NotNull(message = "Temperature is required")
+  private Double temperature;
+  @Min(value = 0, message = "Humidity must be greater than or equal to 0")
+  @NotNull(message = "Humidity is required")
+  private Double humidity;
+  @Min(value = 0, message = "Wind Speed must be greater than or equal to 0")
+  @NotNull(message = "Wind Speed is required")
+  private Double windSpeed;
 
   protected SensorData() {
   }

@@ -2,15 +2,19 @@ package com.demo.weather_service.service;
 
 import com.demo.weather_service.data.SensorData;
 import com.demo.weather_service.repository.SensorDataRepository;
+import com.demo.weather_service.service.mapper.StatisticsMapper;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SensorDataService {
+  Logger logger = LoggerFactory.getLogger(SensorDataService.class);
 
   private final SensorDataRepository repository;
   private final StatisticsMapper statisticsMapper;
@@ -26,16 +30,18 @@ public class SensorDataService {
 
   public Map<String, SensorData> getLatestStateForSensorIds(List<String> sensorIds) {
 
-    Map<String, SensorData> map = new HashMap<>();
+    Map<String, SensorData> sensorData = new HashMap<>();
     for (String sensorId : sensorIds) {
       //queue if unavailable
-      SensorData sensorData = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
-      if (sensorData != null) {
-        map.put(sensorId, sensorData);
+      SensorData sensorDataEntry = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
+      if (sensorDataEntry == null) {
+        logger.info("msg={}, sensor_id={}", "Nothing found for sensorId", sensorId);
+        continue;
       }
+      sensorData.put(sensorId, sensorDataEntry);
     }
 
-    return map;
+    return sensorData;
   }
 
   //async
@@ -47,46 +53,51 @@ public class SensorDataService {
       LocalDate to
   ) {
 
-
-    Map<String, Map<String, Double>> statistics = new HashMap<>();
+    Map<String, Map<String, Double>> statistics = new TreeMap<>();
 
     Map<String, List<SensorData>> sensorDataBySensorId =
-        noDatesPresent(from, to) ? getLatestSensorDataFor(sensorIds) :
-            getSensorDataBetweenDates(sensorIds, from, to);
+        isDatesPresent(from, to) ? getSensorDataBetweenDates(sensorIds, from, to): getLatestSensorDataFor(sensorIds);
+
+    statistics.put("overall",
+        statisticsMapper.mapOverallStatistics(statistic, sensorDataBySensorId.entrySet(), metrics));
 
     sensorDataBySensorId.forEach((key, value) ->
-        statistics.put(key, processStatistics(statistic, value, metrics)));
+        statistics.put(key, statisticsMapper.mapStatistics(statistic, value, metrics)));
+
 
     return statistics;
   }
+
 
   private Map<String, List<SensorData>> getLatestSensorDataFor(List<String> sensorIds) {
     Map<String, List<SensorData>> map = new HashMap<>();
 
     for (String sensorId : sensorIds) {
       SensorData sensorData = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
-      if (sensorData.getSensorId() != null) {
-        map.put(sensorId, List.of(sensorData));
+      if (sensorData.getSensorId() == null) {
+        logger.info("msg={}, sensor_id={}", "Nothing found for sensorId", sensorId);
+        continue;
       }
+      map.put(sensorId, List.of(sensorData));
     }
     return map;
   }
 
-  private Map<String, List<SensorData>> getSensorDataBetweenDates(List<String> sensorIds, LocalDate from,
+  private Map<String, List<SensorData>> getSensorDataBetweenDates(List<String> sensorIds,
+                                                                  LocalDate from,
                                                                   LocalDate to) {
     Map<String, List<SensorData>> mappedSensorData = new HashMap<>();
     for (String sensorId : sensorIds) {
       List<SensorData> sensorData =
           repository.findSensorDataBySensorIdAndDateBetween(sensorId, from, to);
-      if (!sensorData.isEmpty()) {
-        mappedSensorData.put(sensorId, sensorData);
+      if (sensorData.isEmpty()) {
+        logger.info("msg={}, sensor_id={}", "Nothing found for sensorId", sensorId);
+        continue;
       }
+      mappedSensorData.put(sensorId, sensorData);
+
     }
     return mappedSensorData;
-  }
-
-  private boolean noDatesPresent(LocalDate from, LocalDate to) {
-    return from == null && to == null;
   }
 
   public Map<String, Map<String, Double>> getMetricsStatisticsForAllSensors(List<String> metrics,
@@ -97,23 +108,13 @@ public class SensorDataService {
         to);
   }
 
-  private Map<String, Double> processStatistics(String statistic,
-                                                List<SensorData> sensorData,
-                                                List<String> metricsToProcess) {
-
-    Map<String, Double> metricsMap;
-
-    switch (statistic.toLowerCase(Locale.ROOT)) {
-      case "average" -> metricsMap =
-          statisticsMapper.mapAverageStatistic(sensorData.size(), sensorData, metricsToProcess);
-      case "sum" -> metricsMap = statisticsMapper.mapSumStatistic(sensorData, metricsToProcess);
-      case "max" -> metricsMap = statisticsMapper.mapMaxStatistic(sensorData, metricsToProcess);
-      case "min" -> metricsMap = statisticsMapper.mapMinStatistic(sensorData, metricsToProcess);
-      default -> metricsMap = Map.of("invalid-statistic: " + statistic, 0.0);
+  private boolean isDatesPresent(LocalDate from, LocalDate to) {
+    if (from != null && to != null) {
+      return true;
     }
 
-
-    return metricsMap;
+    logger.info("msg={}", "No Dates present, retrieving latest");
+    return false;
   }
 
 }
