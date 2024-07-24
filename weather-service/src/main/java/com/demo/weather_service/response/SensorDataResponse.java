@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class SensorDataResponse implements ApiResponse {
+
   private SensorData result;
 
   public SensorDataResponse(SensorData result) {
