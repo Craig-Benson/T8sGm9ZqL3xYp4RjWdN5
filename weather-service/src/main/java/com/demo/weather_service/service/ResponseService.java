@@ -6,9 +6,9 @@ import com.demo.weather_service.response.InvalidResponse;
 import com.demo.weather_service.response.SensorDataResponse;
 import com.demo.weather_service.response.SensorDatasResponse;
 import com.demo.weather_service.response.StatisticsResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ResponseService {
 
-  @Autowired
-  ObjectMapper objectMapper;
+  Logger logger = LoggerFactory.getLogger(ResponseService.class);
 
   public ResponseEntity<SensorDataResponse> createLatestStateResponse(SensorData sensorData) {
 
@@ -31,22 +30,24 @@ public class ResponseService {
   public ResponseEntity<ApiResponse> createLatestStatesResponse(
       Map<String, SensorData> sensorDataMap) {
 
-    int valid = 0;
-    int invalid = 0;
+    int validSensorData = 0;
+    int invalidSensorData = 0;
 
-    for (Map.Entry<String, SensorData> entry : sensorDataMap.entrySet()) {
+    for (Map.Entry<String, SensorData> sensorData : sensorDataMap.entrySet()) {
 
-      if (entry.getValue() == null) {
-        invalid++;
+      if (sensorData.getValue() == null) {
+        logger.info("msg={} sensor_id={}", "Invalid sensor data present", sensorData.getKey());
+        invalidSensorData++;
       } else {
-        valid++;
+        validSensorData++;
       }
     }
-    if (valid > 0 && invalid > 0) {
-      return ResponseEntity.status(HttpStatus.MULTI_STATUS).body(new SensorDatasResponse(sensorDataMap));
+    if (validSensorData > 0 && invalidSensorData > 0) {
+      return ResponseEntity.status(HttpStatus.MULTI_STATUS)
+          .body(new SensorDatasResponse(sensorDataMap));
     }
 
-    if (valid == 0) {
+    if (validSensorData == 0) {
       return ResponseEntity.notFound().build();
     }
 
@@ -55,33 +56,35 @@ public class ResponseService {
   }
 
   public ResponseEntity<ApiResponse> createStatisticsResponse(
-      Map<String, Map<String, Double>> statistics) {
+      Map<String, Map<String, Double>> sensorDatas) {
 
-    int valid = 0;
-    int invalid = 0;
+    int validMetric = 0;
+    int invalidMetric = 0;
 
-    for (Map.Entry<String, Map<String, Double>> entry : statistics.entrySet()) {
+    for (Map.Entry<String, Map<String, Double>> sensorData : sensorDatas.entrySet()) {
 
-      Map<String, Double> sensorStatistics = entry.getValue();
-      for (String statistic : sensorStatistics.keySet()) {
-        if (statistic.equals("invalid-metric")) {
-          invalid++;
+      Map<String, Double> sensorMetrics = sensorData.getValue();
+
+      for (String metric : sensorMetrics.keySet()) {
+        if (metric.equals("invalid-metric")) {
+          logger.warn("msg={}, metric={}", "Invalid metric present", metric);
+          invalidMetric++;
         } else {
-          valid++;
+          validMetric++;
         }
       }
     }
-    if (valid > 0 && invalid > 0) {
+    if (validMetric > 0 && invalidMetric > 0) {
 
       return ResponseEntity.status(HttpStatus.MULTI_STATUS)
-          .body(new StatisticsResponse(statistics));
+          .body(new StatisticsResponse(sensorDatas));
     }
 
-    if (valid == 0) {
+    if (validMetric == 0) {
       return ResponseEntity.notFound().build();
     }
 
-    return ResponseEntity.ok(new StatisticsResponse(statistics));
+    return ResponseEntity.ok(new StatisticsResponse(sensorDatas));
 
   }
 
