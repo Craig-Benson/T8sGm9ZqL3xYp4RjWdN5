@@ -11,26 +11,32 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class StatisticsMapper {
 
+  Logger logger = LoggerFactory.getLogger(StatisticsMapper.class);
 
   public Map<String, Double> mapStatistics(String statistic, List<SensorData> sensorData,
                                            List<String> metrics) {
 
-    Map<String, Double> metricsMap;
+    Map<String, Double> mappedStatistics;
 
     switch (statistic.toLowerCase(Locale.ROOT)) {
-      case "average" -> metricsMap = mapAverageStatistic(sensorData, metrics);
-      case "sum" -> metricsMap = mapSumStatistic(sensorData, metrics);
-      case "max" -> metricsMap = mapMaxStatistic(sensorData, metrics);
-      case "min" -> metricsMap = mapMinStatistic(sensorData, metrics);
-      default -> metricsMap = Map.of("invalid-statistic: " + statistic, 0.0);
+      case "average" -> mappedStatistics = mapAverageStatistic(sensorData, metrics);
+      case "sum" -> mappedStatistics = mapSumStatistic(sensorData, metrics);
+      case "max" -> mappedStatistics = mapMaxStatistic(sensorData, metrics);
+      case "min" -> mappedStatistics = mapMinStatistic(sensorData, metrics);
+      default -> {
+        logger.warn("msg={}, requested_statistic={}", "Invalid statistic", statistic);
+        mappedStatistics = Map.of("invalid-statistic: " + statistic, 0.0);
+      }
     }
 
-    return metricsMap;
+    return mappedStatistics;
   }
 
   public Map<String, Double> mapOverallStatistics(String statistic,
@@ -47,15 +53,20 @@ public class StatisticsMapper {
                                                  List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
 
-    for (String metricToProcess : metricsToProcess) {
-      switch (metricToProcess.toLowerCase(Locale.ROOT)) {
-        case "temperature" -> statisticsMap.put(metricToProcess, getAverage(sensorDatas.size(),
+    for (String metric : metricsToProcess) {
+      switch (metric.toLowerCase(Locale.ROOT)) {
+        case "temperature" -> statisticsMap.put(metric, getAverage(sensorDatas.size(),
             sensorDatas.stream().mapToDouble(SensorData::getTemperature)));
-        case "humidity" -> statisticsMap.put(metricToProcess, getAverage(sensorDatas.size(),
+        case "humidity" -> statisticsMap.put(metric, getAverage(sensorDatas.size(),
             sensorDatas.stream().mapToDouble(SensorData::getHumidity)));
-        case "windspeed" -> statisticsMap.put(metricToProcess, getAverage(sensorDatas.size(),
+        case "windspeed" -> statisticsMap.put(metric, getAverage(sensorDatas.size(),
             sensorDatas.stream().mapToDouble(SensorData::getWindSpeed)));
-        default -> statisticsMap.put("invalid-metric", 0.0);
+        default -> {
+          logger.warn("msg={}, invalid_metric={}",
+              "Unable to perform average operation on invalid metric, mapping invalid-metric",
+              metric);
+          statisticsMap.put("invalid-metric", 0.0);
+        }
 
       }
     }
@@ -65,15 +76,19 @@ public class StatisticsMapper {
   public Map<String, Double> mapSumStatistic(List<SensorData> sensorData,
                                              List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
-    for (String metricToProcess : metricsToProcess) {
-      switch (metricToProcess.toLowerCase(Locale.ROOT)) {
-        case "temperature" -> statisticsMap.put(metricToProcess,
+    for (String metric : metricsToProcess) {
+      switch (metric.toLowerCase(Locale.ROOT)) {
+        case "temperature" -> statisticsMap.put(metric,
             getSum(sensorData.stream().mapToDouble(SensorData::getTemperature)));
-        case "humidity" -> statisticsMap.put(metricToProcess,
+        case "humidity" -> statisticsMap.put(metric,
             getSum(sensorData.stream().mapToDouble(SensorData::getHumidity)));
-        case "windspeed" -> statisticsMap.put(metricToProcess,
+        case "windspeed" -> statisticsMap.put(metric,
             getSum(sensorData.stream().mapToDouble(SensorData::getWindSpeed)));
-        default -> statisticsMap.put("invalid-metric", 0.0);
+        default -> {
+          logger.warn("msg={}, invalid_metric={}",
+              "Unable to perform max operation on invalid metric, mapping invalid-metric", metric);
+          statisticsMap.put("invalid-metric", 0.0);
+        }
       }
     }
     return statisticsMap;
@@ -82,15 +97,19 @@ public class StatisticsMapper {
   public Map<String, Double> mapMaxStatistic(List<SensorData> sensorData,
                                              List<String> metricsToProcess) {
     Map<String, Double> statisticsMap = new HashMap<>();
-    for (String metricToProcess : metricsToProcess) {
-      switch (metricToProcess.toLowerCase(Locale.ROOT)) {
-        case "temperature" -> statisticsMap.put(metricToProcess,
+    for (String metric : metricsToProcess) {
+      switch (metric.toLowerCase(Locale.ROOT)) {
+        case "temperature" -> statisticsMap.put(metric,
             getMax(sensorData.stream().mapToDouble(SensorData::getTemperature)));
-        case "humidity" -> statisticsMap.put(metricToProcess,
+        case "humidity" -> statisticsMap.put(metric,
             getMax(sensorData.stream().mapToDouble(SensorData::getHumidity)));
-        case "windspeed" -> statisticsMap.put(metricToProcess,
+        case "windspeed" -> statisticsMap.put(metric,
             getMax(sensorData.stream().mapToDouble(SensorData::getWindSpeed)));
-        default -> statisticsMap.put("invalid-metric", 0.0);
+        default -> {
+          logger.warn("msg={}, invalid_metric={}",
+              "Unable to perform max operation on invalid metric, mapping invalid-metric", metric);
+          statisticsMap.put("invalid-metric", 0.0);
+        }
       }
     }
     return statisticsMap;
@@ -98,19 +117,23 @@ public class StatisticsMapper {
 
   public Map<String, Double> mapMinStatistic(List<SensorData> sensorData,
                                              List<String> metricsToProcess) {
-    Map<String, Double> statisticsMap = new HashMap<>();
+    Map<String, Double> metric = new HashMap<>();
     for (String metricToProcess : metricsToProcess) {
       switch (metricToProcess.toLowerCase(Locale.ROOT)) {
-        case "temperature" -> statisticsMap.put(metricToProcess,
+        case "temperature" -> metric.put(metricToProcess,
             getMin(sensorData.stream().mapToDouble(SensorData::getTemperature)));
-        case "humidity" -> statisticsMap.put(metricToProcess,
+        case "humidity" -> metric.put(metricToProcess,
             getMin(sensorData.stream().mapToDouble(SensorData::getHumidity)));
-        case "windspeed" -> statisticsMap.put(metricToProcess,
+        case "windspeed" -> metric.put(metricToProcess,
             getMin(sensorData.stream().mapToDouble(SensorData::getWindSpeed)));
-        default -> statisticsMap.put("invalid-metric", 0.0);
+        default -> {
+          logger.warn("msg={}, invalid_metric={}",
+              "Unable to perform min operation on invalid metric, mapping invalid-metric", metric);
+          metric.put("invalid-metric", 0.0);
+        }
       }
     }
-    return statisticsMap;
+    return metric;
   }
 
 
