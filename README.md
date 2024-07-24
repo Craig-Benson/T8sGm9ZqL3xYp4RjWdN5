@@ -11,7 +11,7 @@ This application has the following 2 responsibilities:</br>
 - Retrieve and query the persisted metrics via Get requests</br>
    
 <h3>To start the application</h3> 
-- cd into weather-service module and run mvn clean install </br>
+- run mvn clean install from main folder </br>
 - run WeatherServiceApplication located at: src/main/java/com/demo/weather_service/WeatherServiceApplication.java</br>
 
 
