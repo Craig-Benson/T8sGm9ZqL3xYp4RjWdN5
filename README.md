@@ -7,7 +7,7 @@ SpringBoot</br>
 
 <h2>Description</h2>
 This application has the following 2 responsibilities:
-1. Receive and persist metrics provided by sensors via a Post request
+1. Receive and persist metrics provided by sensors via a Post request</br>
 2. Retrieve and query the persisted metrics via Get requests
    
 <h3>To start the application</h3>
@@ -30,14 +30,13 @@ Credentials:
 
 <h3>UI Links</h3>
 With the app is running you can access the following:<br>
-- [Swagger Ui]([http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
-)
-- [Local H2 DB console](http://localhost:8080/h2-console/)
+- Swagger Ui: http://localhost:8080/swagger-ui/index.html#/
+- Local H2 DB console: http://localhost:8080/h2-console/
 
 <h3> H2 DB Console credentials</h3> 
 
-url: jdbc:h2:mem:testdb<br>
-username: sa<br>
+- url: jdbc:h2:mem:testdb<br>
+- username: sa<br>
 
 ![img.png](img.png)
 
@@ -50,8 +49,8 @@ You can test the requests via the Swagger UI or via applications such as Postman
 If you decide to use an application you must add the same basic authentication, otherwise you will get a 401 Response
 
 <h3>Credentials</h3>
-- Username: user
-- Password: password
+Username: user</br>
+Password: password</br>
 
 ![img_2.png](img_2.png)
 
