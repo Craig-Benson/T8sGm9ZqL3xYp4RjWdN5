@@ -32,7 +32,7 @@ public class SensorDataService {
 
     Map<String, SensorData> sensorData = new HashMap<>();
     for (String sensorId : sensorIds) {
-      //queue if unavailable
+
       SensorData sensorDataEntry = repository.findFirstBySensorIdOrderByDateDesc(sensorId);
       if (sensorDataEntry == null) {
         logger.info("msg={}, sensor_id={}", "Nothing found for sensorId", sensorId);
@@ -44,7 +44,7 @@ public class SensorDataService {
     return sensorData;
   }
 
-  //async
+
   public Map<String, Map<String, Double>> getMetricsStatisticsForSensors(
       List<String> sensorIds,
       String statistic,

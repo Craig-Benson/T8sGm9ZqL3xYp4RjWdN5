@@ -110,7 +110,7 @@ class UserControllerTest {
         .andReturn();
   }
 
-  //TODO FIX
+
   @Test
   public void shouldProcessesSingleSensorIdWithSingleMetricWithSingleStatistic() throws Exception {
 
